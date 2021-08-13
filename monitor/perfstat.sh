@@ -40,6 +40,18 @@ then
             pstack $cs_pid > /hxdata/pstack_${day}_${second}.ps
             sleep 2
             pstack $cs_pid > /hxdata/pstack_${day}_${second}.ps
+			
+			#add high sys cpu thread
+			high_tids=`pidstat -t -u -p $cs_pid 2 1 | grep "|__" | awk '{print $3, $5}' | sort -n -r -k 2 -t ' ' | uniq | awk '{print $1}' | head -n 3`
+			
+			high_tid=`echo $high_tids | awk '{print $1}'` 
+			pstack $high_tid > /hxdata/pstack_htid_${day}_${second}.ps
+			
+			high_tid=`echo $high_tids | awk '{print $2}'`
+			pstack $high_tid >> /hxdata/pstack_htid_${day}_${second}.ps
+			
+			high_tid=`echo $high_tids | awk '{print $3}'`
+			pstack $high_tid >> /hxdata/pstack_htid_${day}_${second}.ps
 
             #perf
             perf record -o /hxdata/perf_${day}_${second}.data -p $cs_pid  -g -q sleep 6
